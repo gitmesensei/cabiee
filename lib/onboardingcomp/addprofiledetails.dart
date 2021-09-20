@@ -51,7 +51,7 @@ class _ChooseUsernameState extends State<ChooseName>
           'user_id': user.uid.toString(),
           'email': this._data.email,
           'name': this._data.name,
-          'image': null,
+          'image': '',
           'home': null,
           'work': null,
         }).whenComplete(() {
@@ -68,7 +68,6 @@ class _ChooseUsernameState extends State<ChooseName>
     final Size screenSize = MediaQuery.of(context).size;
     return SafeArea(
         child: Scaffold(
-          backgroundColor: Colors.amberAccent,
       body: ListView(
         children: <Widget>[
 

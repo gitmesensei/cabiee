@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:cabiee/global_variables.dart';
 import 'package:cabiee/pageview/add_home.dart';
 import 'package:cabiee/pageview/add_pickup.dart';
 import 'package:cabiee/pageview/set_location_on_map.dart';
@@ -17,9 +18,8 @@ import 'add_work.dart';
 class AddDestination extends StatefulWidget {
   double latitude;
   double longitude;
-  DateTime date;
 
-  AddDestination(this.latitude, this.longitude, this.date);
+  AddDestination(this.latitude, this.longitude);
 
   @override
   _AddDestinationState createState() => _AddDestinationState();
@@ -47,9 +47,8 @@ class _AddDestinationState extends State<AddDestination> {
   GeoPoint homePoint;
   GeoPoint workPoint;
   List<Place> _placesList;
-  var first;
-
   bool _showRecent;
+  String destinationName;
 
   @override
   void initState() {
@@ -58,10 +57,10 @@ class _AddDestinationState extends State<AddDestination> {
     print(widget.latitude + widget.longitude);
     if (Platform.isAndroid) {
       // Android-specific code
-      kGoogleApiKey = "AIzaSyC9pqyp5r_m4cHbQIGKJjDXY5NG6lwP9Zg";
+      kGoogleApiKey = Global.kAndroidGoogleApiKey;
     } else if (Platform.isIOS) {
       // iOS-specific code
-      kGoogleApiKey = "AIzaSyD5qX2Kc9s5ggtsRjoKRKeu6YO8s4zd0PQ";
+      kGoogleApiKey = Global.kIOSGoogleApiKey;
     }
     super.initState();
     _heading = "Suggestions";
@@ -320,8 +319,7 @@ class _AddDestinationState extends State<AddDestination> {
                           builder: (context) => AddPickup(
                               _location,
                               PointLatLng(
-                                  homePoint.latitude, homePoint.longitude),
-                              widget.date)));
+                                  homePoint.latitude, homePoint.longitude),_home)));
                 }
               },
             ),
@@ -347,8 +345,7 @@ class _AddDestinationState extends State<AddDestination> {
                           builder: (context) => AddPickup(
                               _location,
                               PointLatLng(
-                                  workPoint.latitude, workPoint.longitude),
-                              widget.date)));
+                                  workPoint.latitude, workPoint.longitude),_work)));
                 }
               },
             ),
@@ -366,7 +363,7 @@ class _AddDestinationState extends State<AddDestination> {
                     context,
                     MaterialPageRoute(
                         builder: (context) =>
-                            SLOM(_location, widget.date, id)));
+                            SLOM(_location, id,myLocation)));
               },
             ),
             SizedBox(
@@ -428,14 +425,14 @@ class _AddDestinationState extends State<AddDestination> {
         onTap: () async {
           var addresses = await Geocoder.local
               .findAddressesFromQuery(_placesList[index].place);
-          var add = addresses.first;
-          first = add;
+          var first = addresses.first;
           setState(() {
             if (myDestinationActive == true) {
               _destination = PointLatLng(
                   first.coordinates.latitude, first.coordinates.longitude);
               _searchController =
                   TextEditingController(text: _placesList[index].place);
+              destinationName=addresses.toString();
             } else {
               _location = PointLatLng(
                   first.coordinates.latitude, first.coordinates.longitude);
@@ -497,9 +494,9 @@ class _AddDestinationState extends State<AddDestination> {
                         if (myDestinationActive == true) {
                           _destination = PointLatLng(
                               ds['coords'].latitude, ds['coords'].longitude);
-
                           _searchController =
                               TextEditingController(text: ds['place']);
+                          destinationName=ds['place'];
                         } else {
                           _location = PointLatLng(
                               ds['coords'].latitude, ds['coords'].longitude);
@@ -517,7 +514,7 @@ class _AddDestinationState extends State<AddDestination> {
   Route _createRoute() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
-          AddPickup(_location, _destination, widget.date),
+          AddPickup(_location, _destination,destinationName),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(1.0, 0.0);
         var end = Offset.zero;

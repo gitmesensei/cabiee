@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:io';
 
+import 'package:cabiee/global_variables.dart';
 import 'package:cabiee/models/Place.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:dio/dio.dart';
@@ -40,10 +41,10 @@ class _AddWorkState extends State<AddWork> {
   void initState() {
     if (Platform.isAndroid) {
       // Android-specific code
-      kGoogleApiKey = "AIzaSyC9pqyp5r_m4cHbQIGKJjDXY5NG6lwP9Zg";
+      kGoogleApiKey = Global.kAndroidGoogleApiKey;
     } else if (Platform.isIOS) {
       // iOS-specific code
-      kGoogleApiKey = "AIzaSyD5qX2Kc9s5ggtsRjoKRKeu6YO8s4zd0PQ";
+      kGoogleApiKey = Global.kIOSGoogleApiKey;
     }
     super.initState();
     _heading = "Suggestions";
@@ -181,7 +182,7 @@ class _AddWorkState extends State<AddWork> {
         title: Text(_placesList[index].place,style: TextStyle(color: Colors.white)),
         leading: Icon(Icons.location_on,color: Colors.white,),
         onTap: () async {
-          var addresses = await Geocoder.local.findAddressesFromQuery(_placesList[index].place);
+          var addresses = await Geocoder.google(Global.kIOSGoogleApiKey).findAddressesFromQuery(_placesList[index].place);
           var add = addresses.first;
           first=add;
           setState(() {

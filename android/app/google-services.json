@@ -1,0 +1,99 @@
+{
+  "project_info": {
+    "project_number": "339135079621",
+    "firebase_url": "https://even-plate-148809.firebaseio.com",
+    "project_id": "even-plate-148809",
+    "storage_bucket": "even-plate-148809.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339135079621:android:e34cd237e402531e9f3cac",
+        "android_client_info": {
+          "package_name": "com.acosdemega.cabiee"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339135079621-dnq8o67k14t7lg8tqd82adv0ndej1os7.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.acosdemega.cabiee",
+            "certificate_hash": "9b6f7b29927271d687abf47f22b985a6f92f7eb6"
+          }
+        },
+        {
+          "client_id": "339135079621-ic1e0g1d27i0nrag7rl9a77fpoouq07v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9pqyp5r_m4cHbQIGKJjDXY5NG6lwP9Zg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339135079621-ic1e0g1d27i0nrag7rl9a77fpoouq07v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "339135079621-7e9elam7ir63ct2p9i89c8g3etv5rs36.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.acosdemega.cabieeplus"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:339135079621:android:efbd3892f1696e599f3cac",
+        "android_client_info": {
+          "package_name": "com.acosdemega.cabieedriver"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "339135079621-9a79a9vqnofsmnra8i9b2ep77vmjheq9.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.acosdemega.cabieedriver",
+            "certificate_hash": "9b6f7b29927271d687abf47f22b985a6f92f7eb6"
+          }
+        },
+        {
+          "client_id": "339135079621-ic1e0g1d27i0nrag7rl9a77fpoouq07v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC9pqyp5r_m4cHbQIGKJjDXY5NG6lwP9Zg"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "339135079621-ic1e0g1d27i0nrag7rl9a77fpoouq07v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "339135079621-7e9elam7ir63ct2p9i89c8g3etv5rs36.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.acosdemega.cabieeplus"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

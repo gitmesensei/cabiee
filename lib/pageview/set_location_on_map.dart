@@ -1,10 +1,12 @@
 import 'dart:async';
 
+import 'package:cabiee/global_variables.dart';
 import 'package:cabiee/pageview/choosecab.dart';
 import 'package:cabiee/models/size_config.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -13,9 +15,9 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 // ignore: must_be_immutable
 class SLOM extends StatefulWidget {
   PointLatLng location;
-  DateTime date;
   String id;
-  SLOM(this.location, this.date,this.id);
+  String myLocation;
+  SLOM(this.location, this.id, this.myLocation);
   @override
   _SLOMState createState() => _SLOMState();
 }
@@ -27,7 +29,7 @@ class _SLOMState extends State<SLOM> with TickerProviderStateMixin {
   Completer<GoogleMapController> _mapController = Completer();
   AnimationController _animationController;
   Animation _animation2;
-  String myLocation;
+  String myDestination;
   Animation _animation;
   PointLatLng _location;
 
@@ -62,7 +64,7 @@ class _SLOMState extends State<SLOM> with TickerProviderStateMixin {
     List<Placemark> placemarks = await placemarkFromCoordinates(widget.location.latitude, widget.location.longitude);
     var first = placemarks.first;
     setState(() {
-      myLocation = first.name;
+      myDestination = first.name;
       _location= widget.location;
     });
   }
@@ -166,7 +168,7 @@ class _SLOMState extends State<SLOM> with TickerProviderStateMixin {
                                     style: TextStyle(color: Colors.white),
                                     enabled: false,
                                     decoration: InputDecoration(
-                                      labelText:myLocation==null?'Loading...':"Your Location:  "+myLocation.toString(),
+                                      labelText:myDestination==null?'Loading...':"Your Location:  "+myDestination.toString(),
                                       filled: true,
                                       fillColor: Colors.black,
                                       labelStyle:  TextStyle(color: Colors.white),
@@ -196,7 +198,7 @@ class _SLOMState extends State<SLOM> with TickerProviderStateMixin {
                                     onPressed: () {
                                       Navigator.of(context).push(_createRoute());
                                       FirebaseFirestore.instance.collection('Users').doc(widget.id).collection('locations').add({
-                                        'place':myLocation.toString(),
+                                        'place':myDestination.toString(),
                                         'coords':GeoPoint(_location.latitude, _location.longitude),
                                         'timestamp':Timestamp.now()
                                       });
@@ -229,17 +231,19 @@ class _SLOMState extends State<SLOM> with TickerProviderStateMixin {
     );
   }
   getMovedMarkerLocation(position) async {
-    List<Placemark> placemarks = await placemarkFromCoordinates(position.target.latitude, position.target.longitude);
-    var first = placemarks.first;
+    final coordinates = new Coordinates(position.target.latitude,position.target.longitude);
+    final  addresses = await Geocoder.google(Global.kIOSGoogleApiKey)
+        .findAddressesFromCoordinates(coordinates);
+    var first = addresses.first.addressLine;
     setState(() {
       _location=PointLatLng(position.target.latitude, position.target.longitude);
-      myLocation=first.name;
+      myDestination=first;
     });
 
   }
   Route _createRoute() {
     return PageRouteBuilder(
-      pageBuilder: (context, animation, secondaryAnimation) => SelectCab(widget.location,_location,widget.date),
+      pageBuilder: (context, animation, secondaryAnimation) => SelectCab(widget.location,_location,widget.myLocation,myDestination,),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(1.0, 0.0);
         var end = Offset.zero;

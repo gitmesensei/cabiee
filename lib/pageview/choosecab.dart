@@ -4,6 +4,7 @@ import 'dart:math' show cos, sqrt, asin;
 import 'package:cabiee/models/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
 import '../models/cabs.dart';
@@ -13,8 +14,9 @@ import 'bookcab.dart';
 class SelectCab extends StatefulWidget {
   PointLatLng myLocation;
   PointLatLng destination;
-  DateTime date;
-  SelectCab(this.myLocation, this.destination, this.date);
+  String locationName;
+  String destinationName;
+  SelectCab(this.myLocation, this.destination, this.locationName,this.destinationName);
 
   @override
   _SelectCabState createState() => _SelectCabState();
@@ -37,6 +39,7 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
   double _placeDistance;
   var _index=0;
   String _name='Normal Cab';
+  String _selectedOption = 'CASH';
 
 
   String val;
@@ -47,7 +50,13 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
     Cabs('Auto Rickshaw', 'assets/auto.jpg',8.5),
     Cabs('Bike Ride', 'assets/bike.jpg',5),
   ];
-
+ final List paymentOptions = ["CASH","CREDIT CARD","DEBIT CARD","INTERNET BANKING"];
+ final List<Icon> iconOptions = [
+   Icon(FontAwesomeIcons.moneyBillAlt,color: Colors.green,),
+   Icon(FontAwesomeIcons.creditCard,color: Colors.deepPurpleAccent,),
+   Icon(FontAwesomeIcons.creditCard,color:Colors.indigo),
+   Icon(Icons.web,size: 30,color:Colors.blue ,),
+ ];
   @override
   void dispose() {
     _animationController.dispose();
@@ -98,7 +107,9 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
+                      CircularProgressIndicator(
+                        valueColor:AlwaysStoppedAnimation<Color>(Colors.black),
+                      ),
                       SizedBox(
                         height: 5,
                       ),
@@ -121,6 +132,7 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
                   polylines: Set<Polyline>.of(polylines.values),
                 ),
               ),
+
               SlideTransition(
                 position: _animation2.drive(tween),
                 child: Align(
@@ -135,13 +147,35 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
                         height: 250,
                         child:Column(
                           children: [
-                           // CabSwipe(_placeDistance, widget.date)
+
+                            Expanded(
+                              child: InkWell(
+                                splashColor: Colors.white,
+                                onTap: (){
+                                  _showMyOptions();
+                                },
+                                child: Material(
+                                  color: Colors.lightBlue,
+                                  child: Center(
+                                    child: Text(
+                                      'Paying with $_selectedOption, to change option Press Here.',
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(color: Colors.white,
+                                        fontWeight: FontWeight.bold
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
                             _items(),
                             ButtonTheme(
                               height: 45,
                               child: RaisedButton(
                                   onPressed:(){
-                                    Navigator.push(context, MaterialPageRoute(builder: (context)=>BookCab(items[_index].name,items[_index].image,_placeDistance*items[_index].price,widget.date,widget.myLocation)));
+                                    Navigator.push(context,
+                                        MaterialPageRoute(builder: (context)=>
+                                            BookCab(items[_index].name,items[_index].image,_placeDistance*items[_index].price,widget.myLocation,widget.destination,widget.locationName,widget.destinationName,_selectedOption)));
                                   },
                               color: Colors.white,
                                 child: Center(
@@ -181,9 +215,10 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
 
   Widget _items(){
     return Container(
-        height: 200,
+        height: 160,
         child: ListView.builder(
           padding: EdgeInsets.zero,
+          physics: BouncingScrollPhysics(),
           scrollDirection: Axis.horizontal,
           itemCount: items.length==null?0:items.length,
           itemBuilder: (context, int currentIndex) {
@@ -209,8 +244,8 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
                     Hero(
                       tag: items[currentIndex].name,
                       child: Container(
-                        height: 80,
-                        width: 80,
+                        height: 60,
+                        width: 60,
                         decoration: BoxDecoration(
                             shape: BoxShape.circle,
                             border: Border.all(
@@ -318,6 +353,29 @@ class _SelectCabState extends State<SelectCab>  with SingleTickerProviderStateMi
       _placeDistance = totalDistance;
       print('DISTANCE: $_placeDistance km');
     });
+  }
+  Future<void> _showMyOptions() async {
+    return  showModalBottomSheet(
+        context: context,
+        builder: (context) {
+          return Column(
+            mainAxisSize: MainAxisSize.min,
+            children: List.generate(paymentOptions.length, (index) => buildItems(index)));
+        });
+  }
+
+  buildItems(int index) {
+
+   return ListTile(
+     title: Text(paymentOptions[index],style: TextStyle(fontWeight: FontWeight.w500),),
+     leading: iconOptions[index],
+     onTap: (){
+       setState(() {
+         _selectedOption = paymentOptions[index];
+       });
+       Navigator.pop(context);
+     },
+   );
   }
 }
 

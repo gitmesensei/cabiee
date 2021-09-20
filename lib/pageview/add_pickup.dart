@@ -1,9 +1,10 @@
 import 'dart:async';
-
+import 'package:cabiee/global_variables.dart';
 import 'package:cabiee/pageview/choosecab.dart';
 import 'package:cabiee/models/size_config.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_polyline_points/flutter_polyline_points.dart';
+import 'package:geocoder/geocoder.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 
@@ -12,8 +13,8 @@ import 'package:google_maps_flutter/google_maps_flutter.dart';
 class AddPickup extends StatefulWidget {
   PointLatLng location;
   PointLatLng destination;
-  DateTime date;
-  AddPickup(this.location, this.destination, this.date);
+  String destinationName;
+  AddPickup(this.location, this.destination,this.destinationName);
 
   @override
   _AddPickupState createState() => _AddPickupState();
@@ -26,13 +27,13 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
   Completer<GoogleMapController> _mapController = Completer();
   AnimationController _animationController;
   Animation _animation2;
-  String myLocation;
+  String _locationName;
   Animation _animation;
   PointLatLng _location;
   Position currentLocation;
 
   void _onMapCreated(GoogleMapController controller) async {
-     await getUserLocation();
+    await getUserLocation();
     _mapController.complete(controller);
     if (widget.location != null) {
       MarkerId markerId = MarkerId(_markerIdVal());
@@ -67,8 +68,8 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
   }
   // we used location again for better movement of marker(smooth)
   Future<Position> locateUser() async {
-    return Geolocator()
-        .getCurrentPosition(desiredAccuracy: LocationAccuracy.high);
+    return  Geolocator.getCurrentPosition(desiredAccuracy: LocationAccuracy.medium);
+
   }
 
   getUserLocation() async {
@@ -82,10 +83,10 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
   @override
   void initState() {
     getUserLocation();
-   _animationController = AnimationController( duration: Duration(milliseconds: 1500),vsync: this);
-   _animation2 = Tween(begin: 0.0, end: 1.0).animate(_animationController);
-   _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
-   _animationController.forward();
+    _animationController = AnimationController( duration: Duration(milliseconds: 1500),vsync: this);
+    _animation2 = Tween(begin: 0.0, end: 1.0).animate(_animationController);
+    _animation = CurvedAnimation(parent: _animationController, curve: Curves.easeIn);
+    _animationController.forward();
     super.initState();
   }
   @override
@@ -105,7 +106,8 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      CircularProgressIndicator(),
+                      CircularProgressIndicator(
+                        valueColor:AlwaysStoppedAnimation<Color>(Colors.black),                      ),
                       SizedBox(
                         height: 5,
                       ),
@@ -116,27 +118,27 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
               ) : FadeTransition(
                 opacity: _animation,
                 child: GoogleMap(
-            markers: Set<Marker>.of(_markers.values),
-            onMapCreated: _onMapCreated,
-            initialCameraPosition: CameraPosition(
-                target: LatLng(widget.location.latitude, widget.location.longitude),
-                zoom: 12.0,
-            ),
-            myLocationEnabled: false,
-            onCameraMove: (CameraPosition position) async {
-                if(_markers.length > 0) {
-                  MarkerId markerId = MarkerId(_markerIdVal());
-                  Marker marker = _markers[markerId];
-                  Marker updatedMarker = marker.copyWith(
-                    positionParam: position.target,
-                  );
-                  setState(() {
-                    _markers[markerId] = updatedMarker;
-                  });
-                  getMovedMarkerLocation(position);
-                }
-            },
-          ),
+                  markers: Set<Marker>.of(_markers.values),
+                  onMapCreated: _onMapCreated,
+                  initialCameraPosition: CameraPosition(
+                    target: LatLng(widget.location.latitude, widget.location.longitude),
+                    zoom: 12.0,
+                  ),
+                  myLocationEnabled: false,
+                  onCameraMove: (CameraPosition position) async {
+                    if(_markers.length > 0) {
+                      MarkerId markerId = MarkerId(_markerIdVal());
+                      Marker marker = _markers[markerId];
+                      Marker updatedMarker = marker.copyWith(
+                        positionParam: position.target,
+                      );
+                      setState(() {
+                        _markers[markerId] = updatedMarker;
+                      });
+                      getMovedMarkerLocation(position);
+                    }
+                  },
+                ),
               ),
               SlideTransition(
                 position: _animation2.drive(tween),
@@ -148,7 +150,7 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
                           topLeft: Radius.circular(30),
                           topRight: Radius.circular(30)),
                       child: Container(
-                        height: 230,
+                        height: 180,
                         decoration: BoxDecoration(
                           color: Colors.amberAccent,
                           boxShadow: [
@@ -161,9 +163,13 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
+                            _locationName==null? LinearProgressIndicator(
+                              backgroundColor: Colors.black,
+                              valueColor:AlwaysStoppedAnimation<Color>(Colors.amber),
+                            ):SizedBox(height: 2,),
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.only(top: 40, left: 30, right: 30,),
+                                padding: const EdgeInsets.only(top: 20, left: 30, right: 30,),
                                 child: InkWell(
                                   onTap: (){
                                   },
@@ -171,7 +177,8 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
                                     style: TextStyle(color: Colors.white),
                                     enabled: false,
                                     decoration: InputDecoration(
-                                      labelText:myLocation==null?'Loading...':"Your Location:  "+myLocation.toString(),
+                                      labelText:_locationName==
+                                          null?'Loading...':_locationName.toString(),
                                       filled: true,
                                       fillColor: Colors.black,
                                       labelStyle:  TextStyle(color: Colors.white),
@@ -193,7 +200,7 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
 
                             Expanded(
                               child: Padding(
-                                padding: const EdgeInsets.all(25),
+                                padding: const EdgeInsets.all(15),
                                 child: ButtonTheme(
                                   minWidth: 10,
                                   height: 40,
@@ -223,23 +230,26 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
                       ),
                     )),
               ),
-        ]),
+            ]),
       ),
     );
   }
   getMovedMarkerLocation(position) async {
-    List<Placemark> placemarks = await Geolocator().placemarkFromCoordinates(position.target.latitude,position.target.longitude);
-    var first = placemarks.first;
+    //error here for ios
+    final coordinates = new Coordinates(position.target.latitude,position.target.longitude);
+    final  addresses = await Geocoder.google(Global.kIOSGoogleApiKey)
+        .findAddressesFromCoordinates(coordinates);
+    var first = addresses.first.addressLine;
     setState(() {
       _location=PointLatLng(position.target.latitude,position.target.longitude);
-      myLocation=first.name;
+      _locationName=first;
     });
 
   }
   Route _createRoute() {
     return PageRouteBuilder(
       pageBuilder: (context, animation, secondaryAnimation) =>
-          SelectCab(_location,widget.destination,widget.date),
+          SelectCab(_location,widget.destination,_locationName,widget.destinationName),
       transitionsBuilder: (context, animation, secondaryAnimation, child) {
         var begin = Offset(1.0, 0.0);
         var end = Offset.zero;
@@ -256,3 +266,4 @@ class _AddPickupState extends State<AddPickup>  with SingleTickerProviderStateMi
     );
   }
 }
+

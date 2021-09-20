@@ -87,7 +87,9 @@ class _LoadingState extends State<Loading> with SingleTickerProviderStateMixin {
                 Center(
                   child: Container(
                     margin: EdgeInsets.only(left: 20, right: 20, top: 120),
-                    child: CircularProgressIndicator()
+                    child: CircularProgressIndicator(
+                      valueColor:AlwaysStoppedAnimation<Color>(Colors.black),
+                    )
                   ),
                 ),
               ],
